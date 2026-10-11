@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shinonome-web | JavaScript & API Lab</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+    }
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+    p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 800px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+    }
+    button {
+      background-color: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      margin: 0.5rem;
+    }
+    button:hover {
+      background-color: var(--accent-hover);
+      color: white;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    /* デモ1: カウンター */
+    .count-display {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      color: var(--accent);
+    }
+    /* デモ2: API画像 */
+    .img-container {
+      width: 100%;
+      height: 200px;
+      margin: 1rem 0;
+      background: #0f172a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .status-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>shinonome-web's Lab</h1>
+    <p>GitHub Pages 上で動く JavaScript & API のデモページ</p>
+  </header>
+
+  <div class="container">
+    <!-- デモ 1: JavaScript クリックイベント -->
+    <section class="card">
+      <h2>1. インタラクティブカウンター</h2>
+      <p class="status-text">ボタンを押してJavaScriptで数字を増減させます</p>
+      <div class="count-display" id="count">0</div>
+      <div>
+        <button id="minus-btn">-1</button>
+        <button id="reset-btn">Reset</button>
+        <button id="plus-btn">+1</button>
+      </div>
+    </section>
+
+    <!-- デモ 2: 外部API通信 (Dog CEO API) -->
+    <section class="card">
+      <h2>2. 外部APIから画像を取得</h2>
+      <p class="status-text">無料の公開APIをfetchで非同期呼び出しします</p>
+      <div class="img-container">
+        <span id="loading-msg" class="status-text">ボタンを押して取得</span>
+        <img id="dog-img" alt="Random Dog">
+      </div>
+      <button id="fetch-btn">新しい画像を読み込む</button>
+    </section>
+  </div>
+
+  <script>
+    // --- デモ 1: カウンターの処理 ---
+    let currentCount = 0;
+    const countDisplay = document.getElementById('count');
+    
+    document.getElementById('plus-btn').addEventListener('click', () => {
+      currentCount++;
+      countDisplay.textContent = currentCount;
+    });
+    
+    document.getElementById('minus-btn').addEventListener('click', () => {
+      currentCount--;
+      countDisplay.textContent = currentCount;
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      currentCount = 0;
+      countDisplay.textContent = currentCount;
+    });
+
+    // --- デモ 2: Fetch API による外部API連携 ---
+    const fetchBtn = document.getElementById('fetch-btn');
+    const dogImg = document.getElementById('dog-img');
+    const loadingMsg = document.getElementById('loading-msg');
+
+    async function fetchDogImage() {
+      try {
+        loadingMsg.style.display = 'block';
+        loadingMsg.textContent = '読み込み中...';
+        dogImg.style.display = 'none';
+        fetchBtn.disabled = true;
+
+        // 公開API (CORS対応・認証不要) を呼び出す
+        const response = await fetch('https://dog.ceo/api/breeds/image/random');
+        const data = await response.json();
+
+        dogImg.src = data.message;
+        dogImg.onload = () => {
+          loadingMsg.style.display = 'none';
+          dogImg.style.display = 'block';
+          fetchBtn.disabled = false;
+        };
+      } catch (error) {
+        loadingMsg.textContent = '画像の取得に失敗しました';
+        fetchBtn.disabled = false;
+        console.error('Fetch error:', error);
+      }
+    }
+
+    fetchBtn.addEventListener('click', fetchDogImage);
+  </script>
+</body>
+</html>
