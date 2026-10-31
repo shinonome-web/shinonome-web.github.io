@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直感でわかる！サン＝ラグ方式 vs ドント方式 シミュレーター</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .seat-badge {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .seat-badge:hover {
+            transform: scale(1.1);
+        }
+        .cell-active {
+            animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+            70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        /* Custom Scrollbar for horizontal tables */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-700 via-blue-700 to-indigo-800 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-indigo-500/40 border border-indigo-300/30 text-indigo-100 text-xs font-semibold px-3 py-1 rounded-full mb-2">
+                        選挙制度・比例代表制の数学
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3">
+                        <i class="fa-solid fa-scale-balanced text-amber-300"></i>
+                        直感でわかる！サン＝ラグ方式シミュレーター
+                    </h1>
+                    <p class="text-indigo-100 text-sm sm:text-base mt-1">
+                        日本の選挙で使われる「ドント方式」と何が違う？割る数を変えるだけで変わる議席配分の仕組みを体験しよう
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="openModal('guideModal')" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-amber-300"></i> 仕組みを学ぶ
+                    </button>
+                    <button onclick="openModal('githubModal')" class="bg-slate-900/60 hover:bg-slate-900/80 text-white border border-white/15 px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                        <i class="fa-brands fa-github"></i> GitHub公開方法
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Quick Concept Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-lg">
+                    ÷1,2,3
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">ドント方式（日本など）</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-0.5 leading-relaxed">
+                        得票数を <span class="font-bold text-blue-600">1, 2, 3, 4...</span> と整数で割る方式。得票が多い<strong>大政党にやや有利</strong>になり、政権安定に繋がりやすいとされます。
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-indigo-200 ring-2 ring-indigo-500/10 flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-lg">
+                    ÷1,3,5
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        サン＝ラグ方式
+                        <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">メイン</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-0.5 leading-relaxed">
+                        得票数を <span class="font-bold text-indigo-600">1, 3, 5, 7...</span> と奇数で割る方式。2議席目以降のハードルが高く、<strong>中小政党にも得票率通り公平に</strong>配分されます。
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 font-bold text-lg">
+                    ÷1.4,3
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-sm sm:text-base">修正サン＝ラグ方式（北欧など）</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-0.5 leading-relaxed">
+                        最初だけ <span class="font-bold text-purple-600">1.4</span> で割り、以降は <span class="font-bold text-purple-600">3, 5, 7...</span> で割る方式。公平さを保ちつつ、極小政党の乱立を少し抑えます。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Presets & Controls Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Column: Settings & Party Inputs (5 cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Preset Scenarios -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
+                        違いがすぐわかるプリセット例
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button onclick="applyPreset('landslide')" class="preset-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition group">
+                            <div class="font-bold text-xs text-slate-800 group-hover:text-indigo-700">① 1強 vs 小政党</div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">大政党の寡占か、小政党の初議席か</div>
+                        </button>
+                        <button onclick="applyPreset('proportional')" class="preset-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition group">
+                            <div class="font-bold text-xs text-slate-800 group-hover:text-indigo-700">② 多党制バトル</div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">5つの政党が競り合うリアルな選挙</div>
+                        </button>
+                        <button onclick="applyPreset(' paradoxical')" class="preset-btn text-left p-2.5 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition group">
+                            <div class="font-bold text-xs text-slate-800 group-hover:text-indigo-700">③ 四捨五入との関係</div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">なぜ「奇数」で割ると理想に近づく？</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Seat & Party Configuration -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <label for="totalSeatsInput" class="block font-bold text-slate-800">
+                                配分する総議席数（定数）
+                            </label>
+                            <span class="text-xs text-slate-500">スライダーを動かして議席が増える様子を観察</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="totalSeatsBadge" class="text-2xl font-extrabold text-indigo-600 bg-indigo-50 px-3.5 py-1 rounded-xl border border-indigo-200">
+                                10
+                            </span>
+                            <span class="text-sm font-medium text-slate-600">議席</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input id="totalSeatsInput" type="range" min="1" max="25" value="10" 
+                            class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            oninput="handleSeatsChange(this.value)">
+                        <div class="flex justify-between text-xs text-slate-400 mt-1 px-1">
+                            <span>1議席</span>
+                            <span>5</span>
+                            <span>10</span>
+                            <span>15</span>
+                            <span>20</span>
+                            <span>25議席</span>
+                        </div>
+                    </div>
+
+                    <!-- Party List Header -->
+                    <div class="flex items-center justify-between pt-2">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-indigo-500"></i> 各政党の得票数
+                        </h3>
+                        <button onclick="addParty()" id="addPartyBtn" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> 政党を追加
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Party Inputs Container -->
+                    <div id="partyInputsContainer" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visual Comparison & Results (7 cols) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Direct Comparison Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                                配分結果の比較（理想の比例配分 vs 各方式）
+                            </h2>
+                            <p class="text-xs text-slate-500">
+                                得票率そのままの「理想の議席（小数）」に一番近いのはどの方式でしょうか？
+                            </p>
+                        </div>
+                        <div id="diffHighlightBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                            <!-- Updated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Stacked Bar Comparison -->
+                    <div class="space-y-4">
+                        <!-- Vote Share (Ideal) -->
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1.5">
+                                <span class="text-slate-600 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bullseye text-emerald-500"></i>
+                                    得票率（理想の比例配分）
+                                </span>
+                                <span class="text-slate-400">総得票: <span id="totalVotesText">0</span>票</span>
+                            </div>
+                            <div id="barVoteShare" class="h-7 w-full rounded-xl overflow-hidden flex bg-slate-100 shadow-inner"></div>
+                        </div>
+
+                        <!-- Sainte-Lague -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                                <span class="text-indigo-700 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
+                                    サン＝ラグ方式（÷1, 3, 5, 7...）
+                                </span>
+                                <span id="slErrorBadge" class="text-[11px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-medium"></span>
+                            </div>
+                            <div id="barSainteLague" class="h-8 w-full rounded-xl overflow-hidden flex bg-slate-100 ring-2 ring-indigo-500/30 shadow-sm"></div>
+                        </div>
+
+                        <!-- D'Hondt -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                                <span class="text-blue-700 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+                                    ドント方式（÷1, 2, 3, 4...）
+                                </span>
+                                <span id="dhErrorBadge" class="text-[11px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-medium"></span>
+                            </div>
+                            <div id="barDHondt" class="h-8 w-full rounded-xl overflow-hidden flex bg-slate-100 shadow-sm"></div>
+                        </div>
+
+                        <!-- Modified Sainte-Lague -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                                <span class="text-purple-700 font-bold flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>
+                                    修正サン＝ラグ方式（÷1.4, 3, 5, 7...）
+                                </span>
+                                <span id="mslErrorBadge" class="text-[11px] text-purple-600 bg-purple-50 px-2 py-0.5 rounded font-medium"></span>
+                            </div>
+                            <div id="barModSainteLague" class="h-7 w-full rounded-xl overflow-hidden flex bg-slate-100 shadow-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Summary Table -->
+                    <div class="overflow-x-auto pt-2">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-[11px] sm:text-xs text-slate-500 uppercase">
+                                    <th class="py-2.5 px-2">政党</th>
+                                    <th class="py-2.5 px-2 text-right">得票率</th>
+                                    <th class="py-2.5 px-2 text-right">理想議席数<br><span class="text-[10px] font-normal">(得票率×定数)</span></th>
+                                    <th class="py-2.5 px-3 text-center bg-indigo-50/70 text-indigo-800 rounded-t-lg font-bold">サン＝ラグ<br><span class="text-[10px] font-normal">(÷1, 3, 5)</span></th>
+                                    <th class="py-2.5 px-3 text-center">ドント<br><span class="text-[10px] font-normal">(÷1, 2, 3)</span></th>
+                                    <th class="py-2.5 px-2 text-center">修正サン＝ラグ<br><span class="text-[10px] font-normal">(÷1.4, 3, 5)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Insight Box -->
+                    <div id="insightCommentBox" class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3.5 text-xs sm:text-sm text-amber-900 flex items-start gap-3">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-base mt-0.5"></i>
+                        <div id="insightText" class="leading-relaxed"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Bottom Section: Step-by-Step Quotient Table & Rounding Visualizer -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-indigo-600"></i>
+                        割り算の計算表（1議席ずつ決まるプロセス）
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                        割った後の数字（商）が大きい順に <strong class="text-indigo-600">1位、2位、3位...</strong> と議席が配分されます。
+                    </p>
+                </div>
+
+                <!-- Method Switch Tabs -->
+                <div class="inline-flex bg-slate-100 p-1 rounded-xl self-start">
+                    <button onclick="switchTableMethod('sainte-lague')" id="tab-sainte-lague" class="method-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-indigo-700 shadow-sm">
+                        サン＝ラグ (÷1, 3, 5...)
+                    </button>
+                    <button onclick="switchTableMethod('dhondt')" id="tab-dhondt" class="method-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900">
+                        ドント (÷1, 2, 3...)
+                    </button>
+                    <button onclick="switchTableMethod('modified-sl')" id="tab-modified-sl" class="method-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900">
+                        修正サン＝ラグ (÷1.4, 3, 5...)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Interactive Player -->
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <button onclick="stepSeat(-1)" class="w-9 h-9 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center justify-center shadow-sm transition" title="前の議席へ">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button onclick="toggleAutoPlay()" id="playBtn" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-play" id="playIcon"></i>
+                        <span id="playBtnText">1議席ずつ順番に再生</span>
+                    </button>
+                    <button onclick="stepSeat(1)" class="w-9 h-9 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center justify-center shadow-sm transition" title="次の議席へ">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <button onclick="showAllSteps()" class="px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition ml-1">
+                        全議席を表示
+                    </button>
+                </div>
+
+                <div id="stepStatusBanner" class="text-xs sm:text-sm font-medium text-slate-700 bg-white px-4 py-2 rounded-lg border border-slate-200 w-full sm:w-auto text-center">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Quotient Matrix Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-center">
+                    <thead>
+                        <tr id="matrixTableHeader" class="border-b-2 border-slate-200 text-xs sm:text-sm text-slate-600 bg-slate-50">
+                            <!-- Populated by JS -->
+                        </tr>
+                    </thead>
+                    <tbody id="matrixTableBody" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mathematical Intuition: Why Odd Numbers? (1, 3, 5...) -->
+            <div class="mt-8 bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-2xl p-5 sm:p-6 border border-indigo-100">
+                <h3 class="text-base sm:text-lg font-bold text-indigo-950 flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+                    直感ポイント：なぜサン＝ラグ方式は「1, 3, 5, 7...」と奇数で割るの？
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    <div class="space-y-2.5">
+                        <p class="font-bold text-indigo-900">💡 実は「四捨五入」とまったく同じことをしています！</p>
+                        <p>
+                            普通の<strong>四捨五入</strong>では、計算結果が <span class="font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded">0.5以上</span> なら<strong>1議席</strong>、<span class="font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded">1.5以上</span> なら<strong>2議席</strong>、<span class="font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded">2.5以上</span> なら<strong>3議席</strong>に繰り上がりますよね。
+                        </p>
+                        <p>
+                            この境界線である「<strong>0.5 : 1.5 : 2.5 : 3.5 ...</strong>」をすべて2倍して整数にしてみてください。すると…
+                        </p>
+                        <div class="bg-white p-3 rounded-xl border border-indigo-200 text-center font-bold text-indigo-700 text-sm sm:text-base shadow-sm">
+                            0.5 : 1.5 : 2.5 : 3.5 ＝ <span class="text-lg text-rose-600">1 : 3 : 5 : 7</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2.5">
+                        <p class="font-bold text-indigo-900">⚖️ ドント方式は「切り捨て」、サン＝ラグ方式は「四捨五入」</p>
+                        <ul class="space-y-2 list-disc list-inside text-slate-600">
+                            <li>
+                                <strong class="text-blue-700">ドント方式 (1 : 2 : 3 : 4)</strong> は、1.0、2.0、3.0に達しないと次の議席がもらえない<strong>「端数切り捨て」</strong>と同じ性質を持ちます。そのため、端数が切り捨てられやすい小政党が不利になります。
+                            </li>
+                            <li>
+                                <strong class="text-indigo-700">サン＝ラグ方式 (1 : 3 : 5 : 7)</strong> は、0.5、1.5、2.5を超えた政党から順に議席を与える<strong>「四捨五入」</strong>と同じ性質を持つため、大政党にも小政党にも偏らないもっとも公平な配分になります。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                サン＝ラグ方式 (Sainte-Laguë method / ウェブスター方式) インタラクティブ教材
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openModal('githubModal')" class="hover:text-white transition underline">
+                    GitHub Pagesで公開する手順
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal 1: Guide Modal -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-indigo-600"></i>
+                    サン＝ラグ方式とは？（3分でわかる解説）
+                </h3>
+                <button onclick="closeModal('guideModal')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                <p>
+                    <strong>サン＝ラグ方式（Sainte-Laguë method）</strong>は、1910年にフランスの数学者アンドレ・サン＝ラグが考案した比例代表制の議席配分アルゴリズムです（アメリカでは考案者の名から<strong>ウェブスター方式</strong>とも呼ばれます）。
+                </p>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <h4 class="font-bold text-slate-800">計算の手順</h4>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>各政党の得票数を <strong>1, 3, 5, 7, 9...（2n - 1 の奇数）</strong> で割ります。</li>
+                        <li>計算して出た答え（商）を、全政党まとめて大きい順に並べます。</li>
+                        <li>配分する議席数（定数）に達するまで、上から順番に1議席ずつ割り当てます。</li>
+                    </ol>
+                </div>
+                <h4 class="font-bold text-slate-800">採用している主な国</h4>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><strong>純粋なサン＝ラグ方式：</strong> ドイツ（連邦議会）、ニュージーランド、ラトビアなど</li>
+                    <li><strong>修正サン＝ラグ方式（最初だけ1.4で割る）：</strong> スウェーデン、ノルウェー、デンマークなど</li>
+                    <li><strong>ドント方式（参考）：</strong> 日本（衆議院・参議院の比例代表）、スペイン、ベルギーなど</li>
+                </ul>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('guideModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: GitHub Pages Instructions -->
+    <div id="githubModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-brands fa-github text-slate-900 text-xl"></i>
+                    GitHub Pages (github.io) で公開する手順
+                </h3>
+                <button onclick="closeModal('githubModal')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                <p>
+                    このWebアプリは外部のビルドツールを使わず、<strong>1つの <code>index.html</code> ファイルのみ</strong>で完全に動作するように設計されています。以下の3ステップで今すぐ無料公開できます。
+                </p>
+                <div class="space-y-3">
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="font-bold text-slate-800 mb-1">ステップ 1: リポジトリの作成</div>
+                        <p class="text-xs">GitHubにログインし、新しいPublicリポジトリ（例: <code>sainte-lague-simulator</code>）を作成します。</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="font-bold text-slate-800 mb-1">ステップ 2: index.html のアップロード</div>
+                        <p class="text-xs">このファイルのコードを <code>index.html</code> という名前で保存し、作成したリポジトリにアップロード（Commit）します。</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="font-bold text-slate-800 mb-1">ステップ 3: GitHub Pages を有効化</div>
+                        <p class="text-xs">リポジトリの <strong>Settings</strong> &rarr; 左メニューの <strong>Pages</strong> を開き、<strong>Branch</strong> を <code>main</code> (または <code>master</code>) にして <strong>Save</strong> を押します。数分後に <code>https://あなたのID.github.io/リポジトリ名/</code> で公開されます！</p>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex justify-end">
+                <button onclick="closeModal('githubModal')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2 rounded-xl text-sm transition">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Color Palette for Parties
+        const PARTY_PALETTE = [
+            { name: 'A党', color: '#4f46e5', lightBg: '#eef2ff', border: '#c7d2fe', text: '#3730a3' }, // Indigo
+            { name: 'B党', color: '#e11d48', lightBg: '#fff1f2', border: '#fecdd3', text: '#9f1239' }, // Rose
+            { name: 'C党', color: '#059669', lightBg: '#ecfdf5', border: '#a7f3d0', text: '#065f46' }, // Emerald
+            { name: 'D党', color: '#d97706', lightBg: '#fffbeb', border: '#fde68a', text: '#92400e' }, // Amber
+            { name: 'E党', color: '#0284c7', lightBg: '#f0f9ff', border: '#bae6fd', text: '#075985' }, // Sky
+            { name: 'F党', color: '#7c3aed', lightBg: '#f5f3ff', border: '#ddd6fe', text: '#5b21b6' }  // Violet
+        ];
+
+        // Application State
+        let state = {
+            totalSeats: 10,
+            activeMethod: 'sainte-lague', // 'sainte-lague' | 'dhondt' | 'modified-sl'
+            currentStep: 10, // From 1 to totalSeats
+            isAutoPlaying: false,
+            autoPlayTimer: null,
+            parties: [
+                { id: 1, name: 'A党（与党）', votes: 10000, paletteIdx: 0 },
+                { id: 2, name: 'B党（中堅）', votes: 4200, paletteIdx: 1 },
+                { id: 3, name: 'C党（新興）', votes: 1800, paletteIdx: 2 },
+                { id: 4, name: 'D党（小政党）', votes: 1600, paletteIdx: 3 }
+            ]
+        };
+
+        // Divisor generator functions
+        function getDivisor(method, rowIdx) {
+            // rowIdx is 0-indexed (0 = 1st seat, 1 = 2nd seat, ...)
+            if (method === 'dhondt') {
+                return rowIdx + 1; // 1, 2, 3, 4...
+            } else if (method === 'sainte-lague') {
+                return 2 * rowIdx + 1; // 1, 3, 5, 7...
+            } else if (method === 'modified-sl') {
+                return rowIdx === 0 ? 1.4 : 2 * rowIdx + 1; // 1.4, 3, 5, 7...
+            }
+            return 1;
+        }
+
+        // Core Allocation Algorithm
+        function calculateAllocation(parties, totalSeats, method, maxStep = totalSeats) {
+            const quotients = [];
+            const maxRows = Math.min(totalSeats, 15); // Display enough rows in table
+
+            // Generate all possible quotients up to totalSeats
+            parties.forEach(party => {
+                for (let r = 0; r < totalSeats; r++) {
+                    const divisor = getDivisor(method, r);
+                    const quotient = party.votes / divisor;
+                    quotients.push({
+                        partyId: party.id,
+                        partyName: party.name,
+                        paletteIdx: party.paletteIdx,
+                        rowIdx: r,
+                        divisor: divisor,
+                        quotient: quotient,
+                        votes: party.votes
+                    });
+                }
+            });
+
+            // Sort descending by quotient; tie-break by larger party votes, then smaller rowIdx
+            quotients.sort((a, b) => {
+                if (Math.abs(b.quotient - a.quotient) > 1e-9) {
+                    return b.quotient - a.quotient;
+                }
+                if (b.votes !== a.votes) {
+                    return b.votes - a.votes;
+                }
+                return a.rowIdx - b.rowIdx;
+            });
+
+            // Assign ranks for top `totalSeats`
+            const winners = new Map(); // key: `${partyId}-${rowIdx}`, value: rank (1-indexed)
+            const seatCounts = {};
+            parties.forEach(p => seatCounts[p.id] = 0);
+
+            const effectiveSeats = Math.min(maxStep, totalSeats);
+            for (let i = 0; i < totalSeats; i++) {
+                if (i < quotients.length) {
+                    const item = quotients[i];
+                    const rank = i + 1;
+                    winners.set(`${item.partyId}-${item.rowIdx}`, {
+                        rank: rank,
+                        isAllocatedInStep: rank <= effectiveSeats,
+                        isCurrentStepHighlight: rank === effectiveSeats,
+                        quotient: item.quotient,
+                        partyName: item.partyName,
+                        divisor: item.divisor
+                    });
+                    if (rank <= effectiveSeats) {
+                        seatCounts[item.partyId]++;
+                    }
+                }
+            }
+
+            return {
+                seatCounts,
+                winners,
+                sortedTop: quotients.slice(0, totalSeats),
+                displayRows: Math.min(Math.max(6, Math.ceil(totalSeats * 0.7)), totalSeats)
+            };
+        }
+
+        // Render Party Input Controls
+        function renderPartyInputs() {
+            const container = document.getElementById('partyInputsContainer');
+            const maxVotes = Math.max(...state.parties.map(p => p.votes), 10000);
+            const sliderMax = Math.max(20000, Math.ceil(maxVotes / 5000) * 5000);
+
+            container.innerHTML = state.parties.map((party, index) => {
+                const pal = PARTY_PALETTE[party.paletteIdx % PARTY_PALETTE.length];
+                return `
+                    <div class="p-3 rounded-xl border transition-all" style="background-color: ${pal.lightBg}; border-color: ${pal.border};">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2 flex-grow">
+                                <span class="w-3.5 h-3.5 rounded-full flex-shrink-0" style="background-color: ${pal.color};"></span>
+                                <input type="text" value="${party.name}" 
+                                    onchange="updatePartyName(${party.id}, this.value)"
+                                    class="font-bold text-sm bg-white/80 border border-transparent hover:border-slate-300 focus:border-indigo-500 rounded px-2 py-0.5 text-slate-800 w-36 sm:w-44 focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" min="0" max="999999" step="100" value="${party.votes}"
+                                    oninput="updatePartyVotes(${party.id}, this.value)"
+                                    class="w-24 text-right font-bold text-sm bg-white border border-slate-300 rounded-lg px-2 py-1 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="text-xs text-slate-600 font-medium">票</span>
+                                ${state.parties.length > 2 ? `
+                                    <button onclick="removeParty(${party.id})" class="text-slate-400 hover:text-rose-600 ml-1 p-1 transition" title="削除">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <input type="range" min="0" max="${sliderMax}" step="100" value="${party.votes}"
+                            oninput="updatePartyVotes(${party.id}, this.value)"
+                            class="w-full h-2 bg-white/80 rounded-lg appearance-none cursor-pointer"
+                            style="accent-color: ${pal.color};">
+                    </div>
+                `;
+            }).join('');
+
+            const addBtn = document.getElementById('addPartyBtn');
+            if (state.parties.length >= 6) {
+                addBtn.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                addBtn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        // Update calculations and all visuals
+        function updateSimulation() {
+            const totalVotes = state.parties.reduce((acc, p) => acc + p.votes, 0);
+            document.getElementById('totalVotesText').textContent = totalVotes.toLocaleString();
+
+            // Full allocations for all 3 methods
+            const slResult = calculateAllocation(state.parties, state.totalSeats, 'sainte-lague', state.totalSeats);
+            const dhResult = calculateAllocation(state.parties, state.totalSeats, 'dhondt', state.totalSeats);
+            const mslResult = calculateAllocation(state.parties, state.totalSeats, 'modified-sl', state.totalSeats);
+
+            // Render Stacked Bars
+            renderStackedBars(totalVotes, slResult.seatCounts, dhResult.seatCounts, mslResult.seatCounts);
+
+            // Render Summary Table & Insight
+            renderSummaryTable(totalVotes, slResult.seatCounts, dhResult.seatCounts, mslResult.seatCounts);
+
+            // Render Quotient Matrix Table for the currently selected tab & step
+            renderMatrixTable();
+        }
+
+        function renderStackedBars(totalVotes, slSeats, dhSeats, mslSeats) {
+            const voteBar = document.getElementById('barVoteShare');
+            const slBar = document.getElementById('barSainteLague');
+            const dhBar = document.getElementById('barDHondt');
+            const mslBar = document.getElementById('barModSainteLague');
+
+            if (totalVotes === 0) {
+                voteBar.innerHTML = `<div class="w-full text-center text-xs text-slate-400 self-center">得票数を入力してください</div>`;
+                slBar.innerHTML = '';
+                dhBar.innerHTML = '';
+                mslBar.innerHTML = '';
+                return;
+            }
+
+            // 1. Vote Share Bar
+            voteBar.innerHTML = state.parties.map(p => {
+                const pct = (p.votes / totalVotes) * 100;
+                if (pct <= 0) return '';
+                const pal = PARTY_PALETTE[p.paletteIdx % PARTY_PALETTE.length];
+                return `
+                    <div style="width: ${pct}%; background-color: ${pal.color};" 
+                        class="h-full flex items-center justify-center text-[10px] font-bold text-white overflow-hidden whitespace-nowrap px-1 border-r border-white/20 last:border-0"
+                        title="${p.name}: ${pct.toFixed(1)}%">
+                        ${pct >= 8 ? `${pct.toFixed(1)}%` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Helper to build seat bar
+            const buildSeatBar = (seatMap) => {
+                return state.parties.map(p => {
+                    const seats = seatMap[p.id] || 0;
+                    const pct = (seats / state.totalSeats) * 100;
+                    if (seats === 0) return '';
+                    const pal = PARTY_PALETTE[p.paletteIdx % PARTY_PALETTE.length];
+                    return `
+                        <div style="width: ${pct}%; background-color: ${pal.color};" 
+                            class="h-full flex items-center justify-center text-xs font-bold text-white overflow-hidden whitespace-nowrap px-1 border-r border-white/30 last:border-0 transition-all duration-300"
+                            title="${p.name}: ${seats}議席 (${pct.toFixed(1)}%)">
+                            ${pct >= 7 ? `${seats}` : ''}
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            slBar.innerHTML = buildSeatBar(slSeats);
+            dhBar.innerHTML = buildSeatBar(dhSeats);
+            mslBar.innerHTML = buildSeatBar(mslSeats);
+
+            // Calculate Total Absolute Deviation from Ideal Quota
+            const calcDeviation = (seatMap) => {
+                let diff = 0;
+                state.parties.forEach(p => {
+                    const ideal = (p.votes / totalVotes) * state.totalSeats;
+                    diff += Math.abs((seatMap[p.id] || 0) - ideal);
+                });
+                return diff;
+            };
+
+            const slDev = calcDeviation(slSeats);
+            const dhDev = calcDeviation(dhSeats);
+            const mslDev = calcDeviation(mslSeats);
+
+            document.getElementById('slErrorBadge').textContent = `理想とのズレ合計: ${slDev.toFixed(2)}議席分`;
+            document.getElementById('dhErrorBadge').textContent = `理想とのズレ合計: ${dhDev.toFixed(2)}議席分`;
+            document.getElementById('mslErrorBadge').textContent = `理想とのズレ合計: ${mslDev.toFixed(2)}議席分`;
+        }
+
+        function renderSummaryTable(totalVotes, slSeats, dhSeats, mslSeats) {
+            const tbody = document.getElementById('summaryTableBody');
+            let diffCount = 0;
+            let gainedInSL = [];
+            let lostInSL = [];
+
+            tbody.innerHTML = state.parties.map(p => {
+                const pal = PARTY_PALETTE[p.paletteIdx % PARTY_PALETTE.length];
+                const share = totalVotes > 0 ? (p.votes / totalVotes) * 100 : 0;
+                const idealSeats = totalVotes > 0 ? (p.votes / totalVotes) * state.totalSeats : 0;
+
+                const sl = slSeats[p.id] || 0;
+                const dh = dhSeats[p.id] || 0;
+                const msl = mslSeats[p.id] || 0;
+                const diff = sl - dh;
+
+                if (diff !== 0) {
+                    diffCount += Math.abs(diff);
+                    if (diff > 0) gainedInSL.push(`${p.name}(+${diff})`);
+                    if (diff < 0) lostInSL.push(`${p.name}(${diff})`);
+                }
+
+                const diffTag = diff > 0 
+                    ? `<span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold">ドントより+${diff}</span>`
+                    : (diff < 0 ? `<span class="ml-1 text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold">ドントより${diff}</span>` : '');
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-2.5 px-2 font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${pal.color};"></span>
+                            <span>${p.name}</span>
+                        </td>
+                        <td class="py-2.5 px-2 text-right font-medium text-slate-600">
+                            ${share.toFixed(1)}%
+                        </td>
+                        <td class="py-2.5 px-2 text-right font-semibold text-emerald-700">
+                            ${idealSeats.toFixed(2)} <span class="text-[10px] text-slate-400">議席</span>
+                        </td>
+                        <td class="py-2.5 px-3 text-center bg-indigo-50/50 font-extrabold text-indigo-700 text-base">
+                            ${sl} ${diffTag}
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-bold text-blue-700 text-base">
+                            ${dh}
+                        </td>
+                        <td class="py-2.5 px-2 text-center font-semibold text-purple-700">
+                            ${msl}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update Diff Badge & Insight Text
+            const badge = document.getElementById('diffHighlightBadge');
+            const insightText = document.getElementById('insightText');
+
+            if (diffCount > 0) {
+                badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+                badge.innerHTML = `<i class="fa-solid fa-bolt text-amber-600"></i> サン＝ラグ方式とドント方式で結果が異なります！`;
+                insightText.innerHTML = `
+                    現在の得票数では、<strong>ドント方式</strong>に比べて<strong>サン＝ラグ方式</strong>では
+                    <strong class="text-emerald-700">${gainedInSL.join('・')}</strong> が議席を増やし、
+                    <strong class="text-rose-700">${lostInSL.join('・')}</strong> の議席が減少しています。<br>
+                    表の「理想議席数（得票率×定数）」と見比べると、サン＝ラグ方式は各政党の理想値を<strong>ちょうど四捨五入したような最も近い値</strong>になっていることがわかります！
+                `;
+            } else {
+                badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600';
+                badge.innerHTML = `<i class="fa-solid fa-check text-slate-500"></i> 現在の条件では両方式とも同じ配分結果です`;
+                insightText.innerHTML = `
+                    現在の得票バランスと定数（${state.totalSeats}議席）では、サン＝ラグ方式とドント方式で同じ議席配分になっています。得票数のスライダーや総議席数を少し動かすと、大政党と小政党の間で議席が入れ替わる境界線を見つけることができます。
+                `;
+            }
+        }
+
+        // Render Step-by-Step Quotient Table
+        function renderMatrixTable() {
+            const headerRow = document.getElementById('matrixTableHeader');
+            const tbody = document.getElementById('matrixTableBody');
+            const statusBanner = document.getElementById('stepStatusBanner');
+
+            const calc = calculateAllocation(state.parties, state.totalSeats, state.activeMethod, state.currentStep);
+
+            // Header
+            headerRow.innerHTML = `
+                <th class="py-3 px-3 text-left font-bold text-slate-700 border-r border-slate-200 w-32">
+                    割る数 (除数)
+                </th>
+                ${state.parties.map(p => {
+                    const pal = PARTY_PALETTE[p.paletteIdx % PARTY_PALETTE.length];
+                    const wonSeats = calc.seatCounts[p.id] || 0;
+                    return `
+                        <th class="py-3 px-3 font-bold text-slate-800 border-r border-slate-100 last:border-0">
+                            <div class="flex flex-col items-center gap-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${pal.color};"></span>
+                                    <span>${p.name}</span>
+                                </div>
+                                <div class="text-[11px] font-normal text-slate-500">${p.votes.toLocaleString()}票</div>
+                                <div class="mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-white" style="background-color: ${pal.color};">
+                                    獲得: ${wonSeats} 議席
+                                </div>
+                            </div>
+                        </th>
+                    `;
+                }).join('')}
+            `;
+
+            // Rows
+            const rowsHtml = [];
+            for (let r = 0; r < calc.displayRows; r++) {
+                const divisor = getDivisor(state.activeMethod, r);
+                const cellsHtml = state.parties.map(p => {
+                    const pal = PARTY_PALETTE[p.paletteIdx % PARTY_PALETTE.length];
+                    const quotient = p.votes / divisor;
+                    const winInfo = calc.winners.get(`${p.id}-${r}`);
+
+                    let cellStyle = 'bg-white text-slate-500';
+                    let badgeHtml = '';
+                    let ringClass = '';
+
+                    if (winInfo && winInfo.isAllocatedInStep) {
+                        cellStyle = `font-bold text-slate-900`;
+                        badgeHtml = `
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-extrabold rounded-full text-white shadow-sm"
+                                style="background-color: ${pal.color};">
+                                第${winInfo.rank}議席
+                            </span>
+                        `;
+                        if (winInfo.isCurrentStepHighlight && state.currentStep < state.totalSeats) {
+                            ringClass = 'cell-active ring-2 ring-indigo-600';
+                        }
+                    } else if (winInfo && !winInfo.isAllocatedInStep) {
+                        // Will win in future steps
+                        badgeHtml = `
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-400">
+                                (第${winInfo.rank}議席予定)
+                            </span>
+                        `;
+                    }
+
+                    const bgInline = (winInfo && winInfo.isAllocatedInStep) ? `background-color: ${pal.lightBg};` : '';
+
+                    return `
+                        <td class="py-3 px-3 border-r border-slate-100 last:border-0 transition-all ${cellStyle} ${ringClass}" style="${bgInline}">
+                            <div class="flex flex-col items-center justify-center gap-1">
+                                <span class="text-sm sm:text-base font-mono">${Math.round(quotient).toLocaleString()}</span>
+                                ${badgeHtml}
+                            </div>
+                        </td>
+                    `;
+                }).join('');
+
+                rowsHtml.push(`
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="py-3 px-3 text-left font-bold text-slate-700 bg-slate-50/80 border-r border-slate-200 whitespace-nowrap">
+                            <span class="inline-block w-6 text-xs text-slate-400">${r + 1}議席目:</span>
+                            <span class="text-indigo-700 font-extrabold text-sm sm:text-base ml-1">÷ ${divisor}</span>
+                        </td>
+                        ${cellsHtml}
+                    </tr>
+                `);
+            }
+
+            tbody.innerHTML = rowsHtml.join('');
+
+            // Update Step Status Banner
+            if (state.currentStep === state.totalSeats) {
+                const lastWinner = calc.sortedTop[state.totalSeats - 1];
+                statusBanner.innerHTML = lastWinner 
+                    ? `全 <strong>${state.totalSeats}議席</strong> 配分完了！（最後の第${state.totalSeats}議席は <strong>${lastWinner.partyName}</strong> [商: ${Math.round(lastWinner.quotient).toLocaleString()}]）`
+                    : `全 ${state.totalSeats}議席を表示中`;
+            } else {
+                const currentWinner = calc.sortedTop[state.currentStep - 1];
+                if (currentWinner) {
+                    statusBanner.innerHTML = `
+                        ステップ <strong>${state.currentStep} / ${state.totalSeats}</strong>：
+                        <strong>${currentWinner.partyName}</strong>（÷${currentWinner.divisor} ＝ <strong>${Math.round(currentWinner.quotient).toLocaleString()}</strong>）が第${state.currentStep}議席を獲得！
+                    `;
+                }
+            }
+        }
+
+        // Interaction Handlers
+        function handleSeatsChange(val) {
+            stopAutoPlay();
+            state.totalSeats = parseInt(val, 10);
+            state.currentStep = state.totalSeats;
+            document.getElementById('totalSeatsBadge').textContent = state.totalSeats;
+            updateSimulation();
+        }
+
+        function updatePartyVotes(id, val) {
+            const num = Math.max(0, parseInt(val, 10) || 0);
+            const party = state.parties.find(p => p.id === id);
+            if (party) {
+                party.votes = num;
+                renderPartyInputs();
+                updateSimulation();
+            }
+        }
+
+        function updatePartyName(id, name) {
+            const party = state.parties.find(p => p.id === id);
+            if (party && name.trim() !== '') {
+                party.name = name.trim();
+                updateSimulation();
+            }
+        }
+
+        function addParty() {
+            if (state.parties.length >= 6) return;
+            const nextId = Math.max(0, ...state.parties.map(p => p.id)) + 1;
+            const usedPalettes = state.parties.map(p => p.paletteIdx);
+            let nextPaletteIdx = 0;
+            for (let i = 0; i < PARTY_PALETTE.length; i++) {
+                if (!usedPalettes.includes(i)) {
+                    nextPaletteIdx = i;
+                    break;
+                }
+            }
+            const defaultName = PARTY_PALETTE[nextPaletteIdx].name;
+            state.parties.push({
+                id: nextId,
+                name: defaultName,
+                votes: 1500,
+                paletteIdx: nextPaletteIdx
+            });
+            renderPartyInputs();
+            updateSimulation();
+        }
+
+        function removeParty(id) {
+            if (state.parties.length <= 2) return;
+            state.parties = state.parties.filter(p => p.id !== id);
+            renderPartyInputs();
+            updateSimulation();
+        }
+
+        function switchTableMethod(method) {
+            state.activeMethod = method;
+            const methods = ['sainte-lague', 'dhondt', 'modified-sl'];
+            methods.forEach(m => {
+                const btn = document.getElementById(`tab-${m}`);
+                if (m === method) {
+                    btn.className = 'method-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-indigo-700 shadow-sm';
+                } else {
+                    btn.className = 'method-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900';
+                }
+            });
+            renderMatrixTable();
+        }
+
+        // Step Player Controls
+        function stepSeat(delta) {
+            stopAutoPlay();
+            let next = state.currentStep + delta;
+            if (next < 1) next = 1;
+            if (next > state.totalSeats) next = state.totalSeats;
+            state.currentStep = next;
+            renderMatrixTable();
+        }
+
+        function showAllSteps() {
+            stopAutoPlay();
+            state.currentStep = state.totalSeats;
+            renderMatrixTable();
+        }
+
+        function toggleAutoPlay() {
+            if (state.isAutoPlaying) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+
+        function startAutoPlay() {
+            state.isAutoPlaying = true;
+            if (state.currentStep >= state.totalSeats) {
+                state.currentStep = 1;
+            }
+            document.getElementById('playIcon').className = 'fa-solid fa-pause';
+            document.getElementById('playBtnText').textContent = '一時停止';
+            renderMatrixTable();
+
+            state.autoPlayTimer = setInterval(() => {
+                if (state.currentStep < state.totalSeats) {
+                    state.currentStep++;
+                    renderMatrixTable();
+                } else {
+                    stopAutoPlay();
+                }
+            }, 900);
+        }
+
+        function stopAutoPlay() {
+            state.isAutoPlaying = false;
+            if (state.autoPlayTimer) {
+                clearInterval(state.autoPlayTimer);
+                state.autoPlayTimer = null;
+            }
+            document.getElementById('playIcon').className = 'fa-solid fa-play';
+            document.getElementById('playBtnText').textContent = '1議席ずつ順番に再生';
+        }
+
+        // Preset Scenarios
+        function applyPreset(presetKey) {
+            stopAutoPlay();
+            if (presetKey === 'landslide') {
+                // Classic textbook example showing how D'Hondt favors the largest party while Sainte-Lague gives small parties seats
+                state.totalSeats = 8;
+                state.parties = [
+                    { id: 1, name: 'A党（大政党）', votes: 10000, paletteIdx: 0 },
+                    { id: 2, name: 'B党（中堅）', votes: 3800, paletteIdx: 1 },
+                    { id: 3, name: 'C党（小政党）', votes: 1600, paletteIdx: 2 },
+                    { id: 4, name: 'D党（小政党）', votes: 1500, paletteIdx: 3 }
+                ];
+            } else if (presetKey === 'proportional') {
+                state.totalSeats = 12;
+                state.parties = [
+                    { id: 1, name: 'A党', votes: 8400, paletteIdx: 0 },
+                    { id: 2, name: 'B党', votes: 5600, paletteIdx: 1 },
+                    { id: 3, name: 'C党', votes: 3200, paletteIdx: 2 },
+                    { id: 4, name: 'D党', votes: 2100, paletteIdx: 3 },
+                    { id: 5, name: 'E党', votes: 1300, paletteIdx: 4 }
+                ];
+            } else {
+                // Rounding intuition: Total votes = 10,000, total seats = 10 (1,000 votes = 1.00 ideal seat)
+                state.totalSeats = 10;
+                state.parties = [
+                    { id: 1, name: 'A党 (理想5.3議席)', votes: 5300, paletteIdx: 0 },
+                    { id: 2, name: 'B党 (理想2.3議席)', votes: 2300, paletteIdx: 1 },
+                    { id: 3, name: 'C党 (理想1.6議席)', votes: 1600, paletteIdx: 2 },
+                    { id: 4, name: 'D党 (理想0.8議席)', votes: 800, paletteIdx: 3 }
+                ];
+            }
+
+            state.currentStep = state.totalSeats;
+            document.getElementById('totalSeatsInput').value = state.totalSeats;
+            document.getElementById('totalSeatsBadge').textContent = state.totalSeats;
+            renderPartyInputs();
+            updateSimulation();
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Initialize on Window Load
+        window.onload = function() {
+            renderPartyInputs();
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>
