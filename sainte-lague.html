@@ -66,12 +66,9 @@
                         日本の選挙で使われる「ドント方式」と何が違う？割る数を変えるだけで変わる議席配分の仕組みを体験しよう
                     </p>
                 </div>
-                <div class="flex flex-wrap gap-2">
+                <div>
                     <button onclick="openModal('guideModal')" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
                         <i class="fa-solid fa-circle-question text-amber-300"></i> 仕組みを学ぶ
-                    </button>
-                    <button onclick="openModal('githubModal')" class="bg-slate-900/60 hover:bg-slate-900/80 text-white border border-white/15 px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
-                        <i class="fa-brands fa-github"></i> GitHub公開方法
                     </button>
                 </div>
             </div>
@@ -182,28 +179,62 @@
                         </div>
                     </div>
 
-                    <!-- Real Election Scale Quick Presets -->
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                            実際の比例代表選挙の規模感を試す
+                    <!-- Japan Lower House PR Blocks Preset -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+                        <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wide flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                                日本の衆院選 比例代表（全11ブロック 176議席）の定数を選ぶ
+                            </span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="applySeatPreset(10, '小規模ブロック (定数10)')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
-                                <div class="font-bold text-xs text-slate-800">定数 10 議席</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">地方ブロックの目安</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                            <button onclick="applySeatPreset(28, '近畿ブロック (定数28)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">近畿 <span class="text-indigo-600 font-extrabold">28議席</span></div>
+                                <div class="text-[10px] text-slate-500">大阪・京都・兵庫等</div>
                             </button>
-                            <button onclick="applySeatPreset(22, '参議院比例 (定数50...の半分)')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
-                                <div class="font-bold text-xs text-slate-800">定数 22 議席</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">中規模ブロックの目安</div>
+                            <button onclick="applySeatPreset(23, '南関東ブロック (定数23)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">南関東 <span class="text-indigo-600 font-extrabold">23議席</span></div>
+                                <div class="text-[10px] text-slate-500">千葉・神奈川・山梨</div>
                             </button>
-                            <button onclick="applySeatPreset(40, 'ニュージーランド総選挙等')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
-                                <div class="font-bold text-xs text-slate-800">定数 40 議席</div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">大規模ブロックの目安</div>
+                            <button onclick="applySeatPreset(21, '東海ブロック (定数21)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">東海 <span class="text-indigo-600 font-extrabold">21議席</span></div>
+                                <div class="text-[10px] text-slate-500">愛知・静岡・岐阜等</div>
+                            </button>
+                            <button onclick="applySeatPreset(20, '九州ブロック (定数20)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">九州 <span class="text-indigo-600 font-extrabold">20議席</span></div>
+                                <div class="text-[10px] text-slate-500">福岡・鹿児島・沖縄等</div>
+                            </button>
+                            <button onclick="applySeatPreset(19, '東京ブロック (定数19)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">東京 <span class="text-indigo-600 font-extrabold">19議席</span></div>
+                                <div class="text-[10px] text-slate-500">東京都</div>
+                            </button>
+                            <button onclick="applySeatPreset(19, '北関東ブロック (定数19)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">北関東 <span class="text-indigo-600 font-extrabold">19議席</span></div>
+                                <div class="text-[10px] text-slate-500">埼玉・茨城・栃木・群馬</div>
+                            </button>
+                            <button onclick="applySeatPreset(12, '東北ブロック (定数12)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">東北 <span class="text-indigo-600 font-extrabold">12議席</span></div>
+                                <div class="text-[10px] text-slate-500">宮城・福島・青森等</div>
+                            </button>
+                            <button onclick="applySeatPreset(10, '北陸信越ブロック (定数10)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">北陸信越 <span class="text-indigo-600 font-extrabold">10議席</span></div>
+                                <div class="text-[10px] text-slate-500">新潟・長野・富山等</div>
+                            </button>
+                            <button onclick="applySeatPreset(10, '中国ブロック (定数10)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">中国 <span class="text-indigo-600 font-extrabold">10議席</span></div>
+                                <div class="text-[10px] text-slate-500">広島・岡山・山口等</div>
+                            </button>
+                            <button onclick="applySeatPreset(8, '北海道ブロック (定数8)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">北海道 <span class="text-indigo-600 font-extrabold">8議席</span></div>
+                                <div class="text-[10px] text-slate-500">北海道</div>
+                            </button>
+                            <button onclick="applySeatPreset(6, '四国ブロック (定数6)')" class="text-left p-1.5 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition sm:col-span-2">
+                                <div class="font-bold text-xs text-slate-800">四国 <span class="text-indigo-600 font-extrabold">6議席</span></div>
+                                <div class="text-[10px] text-slate-500">香川・愛媛・徳島・高知</div>
                             </button>
                         </div>
                         <div id="seatContextHint" class="text-[11px] text-slate-600 mt-1 italic">
-                            ※ 定数が多いほど、小政党も議席を獲得しやすくなり「理想の得票率」に近づきます。
+                            ※ ブロックの定数を選ぶと、その規模に合わせてシミュレーションできます。
                         </div>
                     </div>
 
@@ -430,11 +461,6 @@
             <div>
                 サン＝ラグ方式 (Sainte-Laguë method / ウェブスター方式) インタラクティブ教材
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="openModal('githubModal')" class="hover:text-white transition underline">
-                    GitHub Pagesで公開する手順
-                </button>
-            </div>
         </div>
     </footer>
 
@@ -471,54 +497,6 @@
             </div>
             <div class="pt-3 border-t border-slate-100 flex justify-end">
                 <button onclick="closeModal('guideModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-xl text-sm transition">
-                    閉じる
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 2: GitHub Pages Instructions -->
-    <div id="githubModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-brands fa-github text-slate-900 text-xl"></i>
-                    GitHub Pages (github.io) で公開する手順
-                </h3>
-                <button onclick="closeModal('githubModal')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
-                <p>
-                    このWebアプリは外部のビルドツールを使わず、<strong>1つの <code>index.html</code> ファイルのみ</strong>で完全に動作するように設計されています。以下の3ステップで今すぐ無料公開できます。
-                </p>
-                <div class="space-y-3">
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                        <div class="font-bold text-slate-800 mb-1">ステップ 1: リポジトリの作成</div>
-                        <p class="text-xs">GitHubにログインし、新しいPublicリポジトリ（例: <code>sainte-lague-simulator</code>）を作成します。</p>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                        <div class="font-bold text-slate-800 mb-1">ステップ 2: index.html のアップロード</div>
-                        <p class="text-xs">このファイルのコードを <code>index.html</code> という名前で保存し、作成したリポジトリにアップロード（Commit）します。</p>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                        <div class="font-bold text-slate-800 mb-1">ステップ 3: GitHub Pages を有効化</div>
-                        <p class="text-xs">リポジトリの <strong>Settings</strong> &rarr; 左メニューの <strong>Pages</strong> を開き、<strong>Branch</strong> を <code>main</code> (または <code>master</code>) にして <strong>Save</strong> を押します。数分後に <code>https://あなたのID.github.io/リポジトリ名/</code> で公開されます！</p>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200">
-                        <div class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-pen-to-square mr-1"></i> 既にコミット済みの index.html を編集（更新）する場合</div>
-                        <ol class="list-decimal list-inside text-xs text-indigo-800 space-y-1 mt-1">
-                            <li>GitHubのリポジトリ画面で <code>index.html</code> をクリックして開きます。</li>
-                            <li>画面右上の<strong>鉛筆アイコン（Edit this file）</strong>をクリックするか、キーボードの <code>e</code> キーを押します。</li>
-                            <li>古いコードをすべて選択して削除し、新しいコードを貼り付けます。</li>
-                            <li>右上の緑色の <strong>Commit changes...</strong> ボタンを押し、確認画面でもう一度 <strong>Commit changes</strong> を押せば更新完了です！（1〜2分でWebサイトにも反映されます）</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            <div class="pt-3 border-t border-slate-100 flex justify-end">
-                <button onclick="closeModal('githubModal')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2 rounded-xl text-sm transition">
                     閉じる
                 </button>
             </div>
