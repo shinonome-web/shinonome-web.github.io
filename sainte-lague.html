@@ -169,16 +169,41 @@
                     </div>
 
                     <div>
-                        <input id="totalSeatsInput" type="range" min="1" max="25" value="10" 
+                        <input id="totalSeatsInput" type="range" min="1" max="50" value="10" 
                             class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             oninput="handleSeatsChange(this.value)">
                         <div class="flex justify-between text-xs text-slate-400 mt-1 px-1">
                             <span>1議席</span>
-                            <span>5</span>
                             <span>10</span>
-                            <span>15</span>
                             <span>20</span>
-                            <span>25議席</span>
+                            <span>30</span>
+                            <span>40</span>
+                            <span>50議席</span>
+                        </div>
+                    </div>
+
+                    <!-- Real Election Scale Quick Presets -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            実際の比例代表選挙の規模感を試す
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="applySeatPreset(10, '小規模ブロック (定数10)')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">定数 10 議席</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">地方ブロックの目安</div>
+                            </button>
+                            <button onclick="applySeatPreset(22, '参議院比例 (定数50...の半分)')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">定数 22 議席</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">中規模ブロックの目安</div>
+                            </button>
+                            <button onclick="applySeatPreset(40, 'ニュージーランド総選挙等')" class="text-left p-2 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition">
+                                <div class="font-bold text-xs text-slate-800">定数 40 議席</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">大規模ブロックの目安</div>
+                            </button>
+                        </div>
+                        <div id="seatContextHint" class="text-[11px] text-slate-600 mt-1 italic">
+                            ※ 定数が多いほど、小政党も議席を獲得しやすくなり「理想の得票率」に近づきます。
                         </div>
                     </div>
 
@@ -480,6 +505,15 @@
                     <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                         <div class="font-bold text-slate-800 mb-1">ステップ 3: GitHub Pages を有効化</div>
                         <p class="text-xs">リポジトリの <strong>Settings</strong> &rarr; 左メニューの <strong>Pages</strong> を開き、<strong>Branch</strong> を <code>main</code> (または <code>master</code>) にして <strong>Save</strong> を押します。数分後に <code>https://あなたのID.github.io/リポジトリ名/</code> で公開されます！</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200">
+                        <div class="font-bold text-indigo-900 mb-1"><i class="fa-solid fa-pen-to-square mr-1"></i> 既にコミット済みの index.html を編集（更新）する場合</div>
+                        <ol class="list-decimal list-inside text-xs text-indigo-800 space-y-1 mt-1">
+                            <li>GitHubのリポジトリ画面で <code>index.html</code> をクリックして開きます。</li>
+                            <li>画面右上の<strong>鉛筆アイコン（Edit this file）</strong>をクリックするか、キーボードの <code>e</code> キーを押します。</li>
+                            <li>古いコードをすべて選択して削除し、新しいコードを貼り付けます。</li>
+                            <li>右上の緑色の <strong>Commit changes...</strong> ボタンを押し、確認画面でもう一度 <strong>Commit changes</strong> を押せば更新完了です！（1〜2分でWebサイトにも反映されます）</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -1068,6 +1102,28 @@
             state.currentStep = state.totalSeats;
             document.getElementById('totalSeatsInput').value = state.totalSeats;
             document.getElementById('totalSeatsBadge').textContent = state.totalSeats;
+            renderPartyInputs();
+            updateSimulation();
+        }
+
+        // Apply Seat Size Preset
+        function applySeatPreset(seats, desc) {
+            stopAutoPlay();
+            state.totalSeats = seats;
+            state.currentStep = state.totalSeats;
+            document.getElementById('totalSeatsInput').value = state.totalSeats;
+            document.getElementById('totalSeatsBadge').textContent = state.totalSeats;
+            
+            // Scale up votes proportionally so numbers look like real-world scale
+            const scaleFactor = seats * 3000;
+            state.parties.forEach((p, idx) => {
+                if (idx === 0) p.votes = Math.round(scaleFactor * 0.45);
+                else if (idx === 1) p.votes = Math.round(scaleFactor * 0.25);
+                else if (idx === 2) p.votes = Math.round(scaleFactor * 0.18);
+                else p.votes = Math.round(scaleFactor * 0.12);
+            });
+
+            document.getElementById('seatContextHint').innerHTML = `✅ <strong>${desc}</strong>を設定しました（有権者や得票数も現実の規模感に合わせて調整されています）`;
             renderPartyInputs();
             updateSimulation();
         }
